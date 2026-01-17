@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fruit Ninja Style Game</title>
+
+<style>
+@font-face {
+  font-family: GangOfThree;
+  src: url("GangOfThree.ttf");
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+body {
+  background: black;
+  overflow: hidden;
+  font-family: GangOfThree;
+}
+
+canvas {
+  display: block;
+  margin: auto;
+  background: black;
+}
+
+/* ---------- UI ---------- */
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: cyan;
+  text-align: center;
+}
+
+.hidden {
+  display: none;
+}
+
+.title {
+  font-size: 72px;
+  text-shadow: 0 0 20px cyan;
+  margin-bottom: 40px;
+}
+
+button {
+  font-family: GangOfThree;
+  font-size: 36px;
+  padding: 18px 60px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  background: cyan;
+  color: black;
+  box-shadow: 0 0 20px cyan;
+}
+
+button:hover {
+  transform: scale(1.1);
+}
+
+/* ---------- HUD ---------- */
+
+#hud {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: cyan;
+  font-size: 32px;
+}
+
+#lives {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 36px;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="game" width="900" height="500"></canvas>
+
+<div id="hud" class="hidden">Score: 0</div>
+<div id="lives" class="hidden">❌ ❌ ❌</div>
+
+<!-- START SCREEN -->
+<div id="startScreen" class="screen">
+  <div class="title">FRUIT SLASH</div>
+  <button onclick="startGame()">PLAY!</button>
+</div>
+
+<!-- GAME OVER -->
+<div id="gameOverScreen" class="screen hidden">
+  <div class="title">GAME OVER!</div>
+  <button onclick="startGame()">REPLAY?</button>
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let objects = [];
+let score = 0;
+let lives = 3;
+let gameRunning = false;
+
+const hud = document.getElementById("hud");
+const livesUI = document.getElementById("lives");
+const startScreen = document.getElementById("startScreen");
+const gameOverScreen = document.getElementById("gameOverScreen");
+
+function random(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+/* ---------- OBJECT ---------- */
+class FlyingObject {
+  constructor(type) {
+    this.type = type; // fruit | bomb
+    this.radius = 22;
+    this.x = random(50, canvas.width - 50);
+    this.y = canvas.height + 40;
+    this.vx = random(-2, 2);
+    this.vy = random(-12, -9);
+    this.gravity = 0.3;
+  }
+
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vy += this.gravity;
+  }
+
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = this.type === "bomb" ? "red" : "lime";
+    ctx.fill();
+  }
+}
+
+/* ---------- GAME LOOP ---------- */
+function spawnObject() {
+  const isBomb = Math.random() < 0.2;
+  objects.push(new FlyingObject(isBomb ? "bomb" : "fruit"));
+}
+
+function update() {
+  if (!gameRunning) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  objects.forEach((obj, i) => {
+    obj.update();
+    obj.draw();
+
+    if (obj.y > canvas.height + 50) {
+      if (obj.type === "fruit") loseLife();
+      objects.splice(i, 1);
+    }
+  });
+
+  requestAnimationFrame(update);
+}
+
+/* ---------- INPUT ---------- */
+canvas.addEventListener("click", e => {
+  if (!gameRunning) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  objects.forEach((obj, i) => {
+    const dist = Math.hypot(mx - obj.x, my - obj.y);
+    if (dist < obj.radius) {
+      if (obj.type === "bomb") {
+        loseLife();
+      } else {
+        score++;
+        hud.textContent = "Score: " + score;
+      }
+      objects.splice(i, 1);
+    }
+  });
+});
+
+/* ---------- LIVES ---------- */
+function loseLife() {
+  lives--;
+  livesUI.textContent = "❌ ".repeat(lives);
+  if (lives <= 0) endGame();
+}
+
+/* ---------- GAME STATES ---------- */
+function startGame() {
+  score = 0;
+  lives = 3;
+  objects = [];
+  gameRunning = true;
+
+  hud.textContent = "Score: 0";
+  livesUI.textContent = "❌ ❌ ❌";
+
+  startScreen.classList.add("hidden");
+  gameOverScreen.classList.add("hidden");
+  hud.classList.remove("hidden");
+  livesUI.classList.remove("hidden");
+
+  spawnInterval = setInterval(spawnObject, 900);
+  update();
+}
+
+function endGame() {
+  gameRunning = false;
+  clearInterval(spawnInterval);
+  hud.classList.add("hidden");
+  livesUI.classList.add("hidden");
+  gameOverScreen.classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
