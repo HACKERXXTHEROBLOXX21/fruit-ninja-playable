@@ -3,9 +3,13 @@
   src: url("assets/fonts/GangOfThree.ttf");
 }
 
-html, body {
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
   overflow: hidden;
   background: black;
 }
@@ -18,8 +22,9 @@ canvas {
   position: absolute;
   top: 20px;
   left: 20px;
-  color: cyan;
   font-family: GangOfThree;
+  color: cyan;
+  z-index: 5;
 }
 
 #score {
@@ -27,32 +32,62 @@ canvas {
 }
 
 #lives {
-  margin-top: 10px;
   font-size: 32px;
+  margin-top: 10px;
   color: red;
 }
 
-#gameOver {
+/* START SCREEN */
+#startScreen {
   position: absolute;
   inset: 0;
-  display: none;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.95);
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-family: GangOfThree;
   color: cyan;
+  z-index: 10;
+}
+
+#startScreen .title {
+  font-size: 64px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+#startScreen button {
+  font-size: 32px;
+  padding: 15px 50px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+}
+
+/* GAME OVER */
+#gameOver {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: GangOfThree;
+  color: cyan;
+  z-index: 10;
 }
 
 #gameOver .text {
-  font-size: 72px;
+  font-size: 64px;
   margin-bottom: 30px;
 }
 
 #gameOver button {
   font-size: 32px;
-  padding: 15px 40px;
-  cursor: pointer;
+  padding: 15px 50px;
+  border-radius: 12px;
   border: none;
-  border-radius: 10px;
+  cursor: pointer;
 }
