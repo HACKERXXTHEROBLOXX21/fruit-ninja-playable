@@ -1,15 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Fruit Ninja – Gang Of Three</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  < title>Fruit Ninja Style Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <canvas id="game"></canvas>
-<audio id="sliceSound" src="assets/sounds/slice.mp3" preload="auto"></audio>
-<audio id="throwSound" src="assets/sounds/throw.mp3" preload="auto"></audio>
+
+<div id="ui">
+  <div id="score">SCORE 0</div>
+  <div id="lives">✖ ✖ ✖</div>
+</div>
+
+<div id="gameOver" class="hidden">
+  <h1>GAME OVER!</h1>
+  <button id="replayBtn">Replay?</button>
+</div>
+
 <script src="game.js"></script>
 </body>
 </html>
