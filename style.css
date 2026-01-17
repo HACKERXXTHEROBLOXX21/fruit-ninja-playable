@@ -1,0 +1,16 @@
+@font-face {
+  font-family: "GangOfThree";
+  src: url("assets/fonts/GangOfThree.ttf");
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: black;
+  font-family: "GangOfThree", sans-serif;
+}
+
+canvas {
+  display: block;
+}
