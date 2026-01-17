@@ -1,0 +1,71 @@
+@font-face {
+  font-family: "GangOfThree";
+  src: url("assets/fonts/GangOfThree.ttf");
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  overflow: hidden;
+  background: black;
+  font-family: "GangOfThree";
+}
+
+/* CANVAS */
+canvas {
+  display: none;
+  background: black;
+}
+
+/* MENU */
+#menu {
+  position: fixed;
+  inset: 0;
+  background: url("assets/images/menu-bg.png") center / cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#menu h1 {
+  color: cyan;
+  font-size: 60px;
+  margin-bottom: 30px;
+  text-shadow: 0 0 15px cyan;
+}
+
+#menu button,
+#gameOver button {
+  font-family: "GangOfThree";
+  font-size: 28px;
+  padding: 15px 40px;
+  border: none;
+  border-radius: 12px;
+  background: cyan;
+  color: black;
+  cursor: pointer;
+  box-shadow: 0 0 15px cyan;
+}
+
+/* GAME OVER */
+#gameOver {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#gameOver h1 {
+  color: cyan;
+  font-size: 64px;
+  margin-bottom: 30px;
+  text-shadow: 0 0 20px cyan;
+}
