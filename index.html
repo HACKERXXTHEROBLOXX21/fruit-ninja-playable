@@ -1,254 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Kion's Fruit Ninja Style</title>
-
-<style>
-@font-face {
-  font-family: "GangOfThree";
-  src: url("GangOfThree.ttf");
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  user-select: none;
-}
-
-body {
-  background: black;
-  overflow: hidden;
-  font-family: GangOfThree;
-}
-
-/* ---------- CANVAS ---------- */
-canvas {
-  display: none;
-  margin: auto;
-  background: black;
-}
-
-/* ---------- MENU ---------- */
-#menu {
-  position: absolute;
-  inset: 0;
-  background: url("menu-bg.png") center / cover no-repeat;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-#title {
-  color: cyan;
-  font-size: 64px;
-  text-shadow: 0 0 25px cyan;
-  margin-bottom: 40px;
-}
-
-#playBtn {
-  font-family: GangOfThree;
-  font-size: 36px;
-  padding: 18px 70px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-  background: cyan;
-  color: black;
-  box-shadow: 0 0 25px cyan;
-}
-
-#playBtn:hover {
-  transform: scale(1.1);
-}
-
-/* ---------- HUD ---------- */
-#hud {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  color: cyan;
-  font-size: 32px;
-  display: none;
-}
-
-#lives {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  color: red;
-  font-size: 36px;
-  display: none;
-}
-
-/* ---------- GAME OVER ---------- */
-#gameOver {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.8);
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-#gameOver h1 {
-  color: cyan;
-  font-size: 64px;
-  margin-bottom: 30px;
-}
-
-#replayBtn {
-  font-family: GangOfThree;
-  font-size: 36px;
-  padding: 16px 60px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-  background: cyan;
-  color: black;
-}
-</style>
+  <meta charset="UTF-8" />
+  <title>KION'S FRUIT NINJA STYLE</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
 
-<!-- MENU -->
-<div id="menu">
-  <div id="title">KION'S FRUIT NINJA STYLE</div>
-  <button id="playBtn">Play!</button>
-</div>
+  <!-- MENU -->
+  <div id="menu">
+    <h1>KION'S FRUIT NINJA STYLE</h1>
+    <button id="playBtn">PLAY!</button>
+  </div>
 
-<!-- GAME -->
-<canvas id="game" width="900" height="500"></canvas>
-<div id="hud">Score: 0</div>
-<div id="lives">❌ ❌ ❌</div>
+  <!-- GAME -->
+  <canvas id="game"></canvas>
 
-<!-- GAME OVER -->
-<div id="gameOver">
-  <h1>GAME OVER!</h1>
-  <button id="replayBtn">Replay?</button>
-</div>
+  <!-- GAME OVER -->
+  <div id="gameOver">
+    <h1>GAME OVER!</h1>
+    <button id="replayBtn">REPLAY?</button>
+  </div>
 
-<script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-
-const menu = document.getElementById("menu");
-const playBtn = document.getElementById("playBtn");
-const hud = document.getElementById("hud");
-const livesUI = document.getElementById("lives");
-const gameOver = document.getElementById("gameOver");
-const replayBtn = document.getElementById("replayBtn");
-
-let objects = [];
-let score = 0;
-let lives = 3;
-let running = false;
-let spawnTimer;
-
-/* ---------- OBJECT ---------- */
-class Obj {
-  constructor(type) {
-    this.type = type;
-    this.r = 22;
-    this.x = Math.random() * (canvas.width - 100) + 50;
-    this.y = canvas.height + 30;
-    this.vx = Math.random() * 4 - 2;
-    this.vy = -10 - Math.random() * 3;
-    this.g = 0.3;
-  }
-
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.vy += this.g;
-  }
-
-  draw() {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-    ctx.fillStyle = this.type === "bomb" ? "red" : "lime";
-    ctx.fill();
-  }
-}
-
-/* ---------- GAME ---------- */
-function spawn() {
-  objects.push(new Obj(Math.random() < 0.2 ? "bomb" : "fruit"));
-}
-
-function loop() {
-  if (!running) return;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  objects.forEach((o,i)=>{
-    o.update();
-    o.draw();
-    if (o.y > canvas.height + 40) {
-      if (o.type === "fruit") loseLife();
-      objects.splice(i,1);
-    }
-  });
-
-  requestAnimationFrame(loop);
-}
-
-canvas.addEventListener("click", e => {
-  if (!running) return;
-  const r = canvas.getBoundingClientRect();
-  const mx = e.clientX - r.left;
-  const my = e.clientY - r.top;
-
-  objects.forEach((o,i)=>{
-    if (Math.hypot(mx-o.x,my-o.y) < o.r) {
-      if (o.type === "bomb") loseLife();
-      else {
-        score++;
-        hud.textContent = "Score: " + score;
-      }
-      objects.splice(i,1);
-    }
-  });
-});
-
-function loseLife() {
-  lives--;
-  livesUI.textContent = "❌ ".repeat(lives);
-  if (lives <= 0) endGame();
-}
-
-/* ---------- STATES ---------- */
-function startGame() {
-  score = 0;
-  lives = 3;
-  objects = [];
-  running = true;
-
-  menu.style.display = "none";
-  gameOver.style.display = "none";
-  canvas.style.display = "block";
-  hud.style.display = "block";
-  livesUI.style.display = "block";
-
-  hud.textContent = "Score: 0";
-  livesUI.textContent = "❌ ❌ ❌";
-
-  spawnTimer = setInterval(spawn, 900);
-  loop();
-}
-
-function endGame() {
-  running = false;
-  clearInterval(spawnTimer);
-  gameOver.style.display = "flex";
-}
-
-playBtn.onclick = startGame;
-replayBtn.onclick = startGame;
-</script>
-
+  <script src="game.js"></script>
 </body>
 </html>
