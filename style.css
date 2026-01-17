@@ -7,8 +7,9 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: black;
+  background: radial-gradient(#111, #000);
   font-family: "GangOfThree", sans-serif;
+  touch-action: none;
 }
 
 canvas {
