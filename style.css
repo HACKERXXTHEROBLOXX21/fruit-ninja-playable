@@ -3,11 +3,11 @@
   src: url("assets/fonts/GangOfThree.ttf");
 }
 
-body {
+html, body {
   margin: 0;
+  padding: 0;
   overflow: hidden;
   background: black;
-  touch-action: none;
 }
 
 canvas {
@@ -15,47 +15,44 @@ canvas {
 }
 
 #ui {
-  position: fixed;
-  top: 10px;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 20px;
-  font-family: GangOfThree;
+  position: absolute;
+  top: 20px;
+  left: 20px;
   color: cyan;
-  font-size: 32px;
+  font-family: GangOfThree;
+}
+
+#score {
+  font-size: 40px;
 }
 
 #lives {
+  margin-top: 10px;
+  font-size: 32px;
   color: red;
 }
 
 #gameOver {
-  position: fixed;
+  position: absolute;
   inset: 0;
+  display: none;
   background: rgba(0,0,0,0.85);
-  display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   font-family: GangOfThree;
   color: cyan;
 }
 
-#gameOver h1 {
-  font-size: 64px;
+#gameOver .text {
+  font-size: 72px;
+  margin-bottom: 30px;
 }
 
 #gameOver button {
-  font-family: GangOfThree;
   font-size: 32px;
-  padding: 10px 30px;
-  background: black;
-  border: 3px solid cyan;
-  color: cyan;
+  padding: 15px 40px;
   cursor: pointer;
-}
-
-.hidden {
-  display: none;
+  border: none;
+  border-radius: 10px;
 }
