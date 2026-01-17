@@ -8,29 +8,25 @@ let fruits = [];
 let trails = [];
 let score = 0;
 let lives = 3;
-let gameRunning = true;
-
-const sliceSound = new Audio("assets/sounds/slice.wav");
-const bombSound = new Audio("assets/sounds/bomb.wav");
-const gameOverSound = new Audio("assets/sounds/gameover.wav");
+let gameRunning = false;
+let gameStarted = false;
 
 const scoreEl = document.getElementById("score");
 const livesEl = document.getElementById("lives");
 const gameOverEl = document.getElementById("gameOver");
+const startScreen = document.getElementById("startScreen");
 
-let lastX = 0;
-let lastY = 0;
 let slicing = false;
 
-// ---------------- FRUIT CLASS ----------------
+// ---------------- FRUIT ----------------
 class Fruit {
   constructor(isBomb = false) {
     this.isBomb = isBomb;
     this.radius = 30;
     this.x = Math.random() * canvas.width;
-    this.y = canvas.height + 50;
+    this.y = canvas.height + 60;
     this.vx = (Math.random() - 0.5) * 4;
-    this.vy = - (Math.random() * 12 + 15);
+    this.vy = -(Math.random() * 12 + 18);
     this.hit = false;
   }
 
@@ -39,9 +35,9 @@ class Fruit {
     this.y += this.vy;
     this.vy += 0.5;
 
-    if (this.y > canvas.height + 60 && !this.hit && !this.isBomb) {
-      loseLife();
+    if (this.y > canvas.height + 80 && !this.hit && !this.isBomb) {
       this.hit = true;
+      loseLife();
     }
   }
 
@@ -55,15 +51,9 @@ class Fruit {
 
 // ---------------- SPAWN ----------------
 function spawnFruit() {
-  if (!gameRunning) return;
+  if (!gameRunning || !gameStarted) return;
 
-  const bombExists = fruits.some(f => f.isBomb);
-  let isBomb = false;
-
-  if (!bombExists && Math.random() < 0.15) {
-    isBomb = true;
-  }
-
+  let isBomb = Math.random() < 0.2;
   fruits.push(new Fruit(isBomb));
 }
 
@@ -71,24 +61,20 @@ function spawnFruit() {
 function slice(x, y) {
   trails.push({ x, y, life: 15 });
 
-  for (let fruit of fruits) {
+  fruits.forEach(fruit => {
     const dx = x - fruit.x;
     const dy = y - fruit.y;
-    const dist = Math.hypot(dx, dy);
-
-    if (dist < fruit.radius && !fruit.hit) {
+    if (Math.hypot(dx, dy) < fruit.radius && !fruit.hit) {
       fruit.hit = true;
 
       if (fruit.isBomb) {
-        bombSound.play();
         loseLife();
       } else {
-        sliceSound.play();
         score++;
         scoreEl.textContent = `SCORE ${score}`;
       }
     }
-  }
+  });
 }
 
 // ---------------- LIVES ----------------
@@ -96,70 +82,77 @@ function loseLife() {
   lives--;
   livesEl.textContent = "X".repeat(lives);
 
-  if (lives <= 0) {
-    endGame();
-  }
+  if (lives <= 0) endGame();
 }
 
-// ---------------- GAME OVER ----------------
+// ---------------- GAME FLOW ----------------
+function startGame() {
+  gameStarted = true;
+  gameRunning = true;
+  startScreen.style.display = "none";
+}
+
 function endGame() {
   gameRunning = false;
-  gameOverSound.play();
+  gameStarted = false;
   gameOverEl.style.display = "flex";
 }
 
-// ---------------- RESTART ----------------
 function restartGame() {
   fruits = [];
   trails = [];
   score = 0;
   lives = 3;
-  gameRunning = true;
 
   scoreEl.textContent = "SCORE 0";
   livesEl.textContent = "XXX";
   gameOverEl.style.display = "none";
+
+  gameStarted = true;
+  gameRunning = true;
 }
 
 // ---------------- INPUT ----------------
-function startSlice(x, y) {
-  slicing = true;
-  lastX = x;
-  lastY = y;
-}
+canvas.addEventListener("mousedown", e => slicing = true);
+canvas.addEventListener("mouseup", () => slicing = false);
+canvas.addEventListener("mousemove", e => slicing && slice(e.clientX, e.clientY));
 
-function moveSlice(x, y) {
-  if (!slicing) return;
-  slice(x, y);
-  lastX = x;
-  lastY = y;
-}
-
-function endSlice() {
-  slicing = false;
-}
-
-canvas.addEventListener("mousedown", e => startSlice(e.clientX, e.clientY));
-canvas.addEventListener("mousemove", e => moveSlice(e.clientX, e.clientY));
-canvas.addEventListener("mouseup", endSlice);
-
-canvas.addEventListener("touchstart", e => {
-  const t = e.touches[0];
-  startSlice(t.clientX, t.clientY);
-});
-
+canvas.addEventListener("touchstart", e => slicing = true);
+canvas.addEventListener("touchend", () => slicing = false);
 canvas.addEventListener("touchmove", e => {
-  const t = e.touches[0];
-  moveSlice(t.clientX, t.clientY);
+  if (slicing) {
+    const t = e.touches[0];
+    slice(t.clientX, t.clientY);
+  }
 });
-
-canvas.addEventListener("touchend", endSlice);
 
 // ---------------- LOOP ----------------
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // trails
+  trails.forEach((t, i) => {
+    ctx.fillStyle = `rgba(0,255,255,${t.life / 15})`;
+    ctx.beginPath();
+    ctx.arc(t.x, t.y, 5, 0, Math.PI * 2);
+    ctx.fill();
+    t.life--;
+    if (t.life <= 0) trails.splice(i, 1);
+  });
+
+  // fruits
+  fruits.forEach((f, i) => {
+    f.update();
+    f.draw();
+    if (f.hit) fruits.splice(i, 1);
+  });
+
+  requestAnimationFrame(animate);
+}
+
+setInterval(spawnFruit, 900);
+animate();
+
   for (let i = trails.length - 1; i >= 0; i--) {
     const t = trails[i];
     ctx.fillSt
